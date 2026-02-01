@@ -14,4 +14,27 @@ public class ChatLieu {
     @OneToMany(mappedBy = "mauSac")
     private List<SanPham> list;
 
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getTen() {
+        return ten;
+    }
+
+    public void setTen(String ten) {
+        this.ten = ten;
+    }
+
+    public List<SanPham> getList() {
+        return list;
+    }
+
+    public void setList(List<SanPham> list) {
+        this.list = list;
+    }
 }

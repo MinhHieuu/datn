@@ -17,9 +17,11 @@ public class NguoiDung {
     private String sdt;
     private String hinhAnh;
     private String diaChi;
-    private boolean deleteFlag;
+    private Boolean deleteFlag;
     @OneToMany(mappedBy = "nguoiDung")
     private List<HoaDon> listHoaDon;
     @OneToOne(mappedBy = "nguoiDung")
     private GioHang gioHang;
+    @OneToOne(mappedBy = "nguoiDung")
+    private KhachHang khachHang;
 }

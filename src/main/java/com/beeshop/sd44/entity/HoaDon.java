@@ -11,6 +11,7 @@ import java.util.UUID;
 public class HoaDon {
     private UUID id;
     private String ma;
+    private String ghiChu;
     private Date ngayTao;
     private Date ngayThanhToan;
     private Integer phiShip;
