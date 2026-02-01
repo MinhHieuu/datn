@@ -1,9 +1,6 @@
 package com.beeshop.sd44.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 
 import java.util.Date;
 import java.util.List;
@@ -11,6 +8,8 @@ import java.util.UUID;
 
 @Entity
 public class SanPham {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String ten;
     private Date ngay_tao;

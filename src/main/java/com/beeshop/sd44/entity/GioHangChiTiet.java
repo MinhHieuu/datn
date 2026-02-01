@@ -1,13 +1,13 @@
 package com.beeshop.sd44.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
 @Entity
 public class GioHangChiTiet {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private Double gia;
     private Integer soLuong;

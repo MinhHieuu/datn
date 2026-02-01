@@ -1,14 +1,14 @@
 package com.beeshop.sd44.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 import java.util.Date;
 import java.util.UUID;
 
 @Entity
 public class HoaDon {
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String ma;
     private String ghiChu;
