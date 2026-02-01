@@ -16,6 +16,6 @@ public class GioHang {
     @OneToOne
     @JoinColumn(name = "nguoi_dung_id")
     private NguoiDung nguoiDung;
-    @OneToMany(mappedBy = "gio_hang_id")
+    @OneToMany(mappedBy = "gioHang")
     private List<GioHangChiTiet> listGioHangChiTiet;
 }

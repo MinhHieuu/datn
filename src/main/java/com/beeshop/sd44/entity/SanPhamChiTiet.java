@@ -27,6 +27,6 @@ public class SanPhamChiTiet {
     private MauSac mauSac;
     @OneToMany(mappedBy = "sanPhamChiTiet")
     private List<Image> imageList;
-    @OneToMany(mappedBy = "san_pham_chi_tiet_id")
+    @OneToMany(mappedBy = "sanPhamChiTiet")
     private List<GioHangChiTiet> listGioHangChiTiet;
 }

@@ -11,7 +11,7 @@ public class ChatLieu {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String ten;
-    @OneToMany(mappedBy = "mauSac")
+    @OneToMany(mappedBy = "chatLieu")
     private List<SanPham> list;
 
     public UUID getId() {
