@@ -34,8 +34,6 @@ public class ChatLieuService {
         this.repo.delete(chatLieu);
     }
 
-
-
     public boolean isNameExit(String name) {
         return repo.existsByTen(name);
     }
