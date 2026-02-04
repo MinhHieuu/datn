@@ -1,6 +1,8 @@
 package com.beeshop.sd44.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+
 
 import java.util.List;
 import java.util.UUID;
@@ -10,6 +12,7 @@ public class ChatLieu {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    @NotBlank(message = "ten khong duoc de trong")
     private String ten;
     @OneToMany(mappedBy = "chatLieu")
     private List<SanPham> list;
