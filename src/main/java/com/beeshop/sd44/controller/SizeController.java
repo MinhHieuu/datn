@@ -1,7 +1,7 @@
 package com.beeshop.sd44.controller;
 
 import com.beeshop.sd44.entity.ApiResponse;
-import com.beeshop.sd44.entity.ChatLieu;
+import com.beeshop.sd44.entity.Marterial;
 import com.beeshop.sd44.entity.Size;
 import com.beeshop.sd44.service.SizeService;
 import jakarta.validation.Valid;
@@ -28,9 +28,9 @@ public class SizeController {
 
     @PostMapping("size")
     public ResponseEntity<?> create(@Valid @RequestBody Size size, BindingResult result) {
-        boolean exitsSize = this.service.isNameExit(size.getTen());
+        boolean exitsSize = this.service.isNameExit(size.getName());
         if(exitsSize == true) {
-            return ResponseEntity.status(409).body(new ApiResponse<ChatLieu>("da ton tai", null));
+            return ResponseEntity.status(409).body(new ApiResponse<Marterial>("da ton tai", null));
         }
         if(result.hasErrors()) {
             String error = result.getFieldError().getDefaultMessage();
@@ -60,7 +60,7 @@ public class SizeController {
         if(result.hasErrors()) {
             return ResponseEntity.status(400).body(new ApiResponse<>(result.getFieldError().getDefaultMessage(), null));
         }
-        size.setTen(newSize.getTen());
+        size.setName(newSize.getName());
         this.service.hanldeSave(size);
         return ResponseEntity.ok().body(new ApiResponse<>("cap nhat thanh cong", size));
     }

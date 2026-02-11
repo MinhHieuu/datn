@@ -1,6 +1,6 @@
 package com.beeshop.sd44.service;
 
-import com.beeshop.sd44.entity.SanPham;
+import com.beeshop.sd44.entity.Product;
 import com.beeshop.sd44.repository.ProductRepo;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +13,11 @@ public class ProductService {
         this.repo = repo;
     }
 
-    public List<SanPham> getAll() {
+    public List<Product> getAll() {
         return this.repo.findAll();
     }
 
     public boolean isNameExit(String name) {
-        return this.repo.existsByTen(name);
+        return this.repo.existsByName(name);
     }
 }

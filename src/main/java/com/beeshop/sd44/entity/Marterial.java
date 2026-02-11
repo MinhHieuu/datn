@@ -8,14 +8,16 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-public class ChatLieu {
+@Table(name = "chat_lieu")
+public class Marterial {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @NotBlank(message = "ten khong duoc de trong")
-    private String ten;
-    @OneToMany(mappedBy = "chatLieu")
-    private List<SanPham> list;
+    @Column(name = "ten")
+    private String name;
+    @OneToMany(mappedBy = "marterial")
+    private List<Product> list;
 
     public UUID getId() {
         return id;
@@ -26,18 +28,18 @@ public class ChatLieu {
     }
 
     public String getTen() {
-        return ten;
+        return name;
     }
 
-    public void setTen(String ten) {
-        this.ten = ten;
+    public void setTen(String name) {
+        this.name = name;
     }
 
-    public List<SanPham> getList() {
+    public List<Product> getList() {
         return list;
     }
 
-    public void setList(List<SanPham> list) {
+    public void setList(List<Product> list) {
         this.list = list;
     }
 }

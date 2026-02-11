@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 @Entity
-public class KhachHang {
+public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -14,9 +14,9 @@ public class KhachHang {
     private String sdt;
     private Date ngayTao;
     private String diaChi;
-    @OneToMany(mappedBy = "khachHang")
-    private List<HoaDon> listHoaDon;
+    @OneToMany(mappedBy = "customer")
+    private List<Order> listOrder;
     @OneToOne
     @JoinColumn(name = "nguoi_dung_id")
-    private NguoiDung nguoiDung;
+    private User user;
 }

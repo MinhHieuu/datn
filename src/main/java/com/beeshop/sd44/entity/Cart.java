@@ -7,15 +7,18 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-public class GioHang {
+@Table(name = "gio_hang")
+public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private int tongSanPham;
-    private Date ngayTao;
+    @Column(name = "tong_san_pham")
+    private int sum;
+    @Column(name = "ngay_tao")
+    private Date CreatedAt;
     @OneToOne
     @JoinColumn(name = "nguoi_dung_id")
-    private NguoiDung nguoiDung;
-    @OneToMany(mappedBy = "gioHang")
-    private List<GioHangChiTiet> listGioHangChiTiet;
+    private User user;
+    @OneToMany(mappedBy = "cart")
+    private List<CartDetail> listCartDetail;
 }

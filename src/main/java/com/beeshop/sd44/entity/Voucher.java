@@ -19,5 +19,5 @@ public class Voucher {
     private Date ngayBatDau;
     private Date ngayKetThuc;
     @OneToMany(mappedBy = "voucher")
-    private List<HoaDon> listHoaDon;
+    private List<Order> listOrder;
 }

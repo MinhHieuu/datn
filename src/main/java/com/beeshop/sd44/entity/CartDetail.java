@@ -5,16 +5,19 @@ import jakarta.persistence.*;
 import java.util.UUID;
 
 @Entity
-public class GioHangChiTiet {
+@Table(name = "gio_hang_chi_tiet")
+public class CartDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private Double gia;
-    private Integer soLuong;
+    @Column(name = "gia")
+    private Double price;
+    @Column(name = "so_luong")
+    private Integer quantity;
     @ManyToOne
     @JoinColumn(name = "gio_hang_id")
-    private GioHang gioHang;
+    private Cart cart;
     @ManyToOne
     @JoinColumn(name = "san_pham_chi_tiet_id")
-    private SanPhamChiTiet sanPhamChiTiet;
+    private ProductDetail productDetail;
 }

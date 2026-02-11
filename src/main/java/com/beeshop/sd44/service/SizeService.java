@@ -34,6 +34,6 @@ public class SizeService {
     }
 
     public boolean isNameExit(String name) {
-        return repo.existsByTen(name);
+        return repo.existsByName(name);
     }
 }

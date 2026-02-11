@@ -7,14 +7,16 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name = "size")
 public class Size {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @NotBlank(message = "ten khong duoc de trong")
-    private String ten;
+    @Column(name = "ten")
+    private String name;
     @OneToMany(mappedBy = "size")
-    private List<SanPhamChiTiet> list;
+    private List<ProductDetail> list;
 
     public UUID getId() {
         return id;
@@ -24,19 +26,19 @@ public class Size {
         this.id = id;
     }
 
-    public String getTen() {
-        return ten;
+    public String getName() {
+        return name;
     }
 
-    public void setTen(String ten) {
-        this.ten = ten;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public List<SanPhamChiTiet> getList() {
+    public List<ProductDetail> getList() {
         return list;
     }
 
-    public void setList(List<SanPhamChiTiet> list) {
+    public void setList(List<ProductDetail> list) {
         this.list = list;
     }
 }
