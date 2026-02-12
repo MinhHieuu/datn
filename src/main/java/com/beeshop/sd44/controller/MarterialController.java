@@ -29,7 +29,7 @@ public class MarterialController {
 
     @PostMapping("chat-lieu")
     public ResponseEntity<ApiResponse<Marterial>> create(@Valid @RequestBody Marterial marterial, BindingResult result) {
-        boolean exitsChatLieu = this.marterialService.isNameExit(marterial.getTen());
+        boolean exitsChatLieu = this.marterialService.isNameExit(marterial.getName());
         if(exitsChatLieu == true) {
             return ResponseEntity.status(409).body(new ApiResponse<Marterial>("da ton tai", null));
         }
@@ -61,7 +61,7 @@ public class MarterialController {
         if(result.hasErrors()) {
             return ResponseEntity.status(400).body(new ApiResponse<>(result.getFieldError().getDefaultMessage(), null));
         }
-        marterial.setTen(newMarterial.getTen());
+        marterial.setName(newMarterial.getName());
         this.marterialService.hanldeSave(marterial);
         return ResponseEntity.ok().body(new ApiResponse<>("cap nhat thanh cong", marterial));
     }

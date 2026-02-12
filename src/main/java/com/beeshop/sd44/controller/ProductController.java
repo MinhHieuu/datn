@@ -1,6 +1,7 @@
 package com.beeshop.sd44.controller;
 
 import com.beeshop.sd44.dto.request.ProductRequest;
+import com.beeshop.sd44.dto.response.ProductResponse;
 import com.beeshop.sd44.entity.ApiResponse;
 import com.beeshop.sd44.entity.Product;
 import com.beeshop.sd44.service.MarterialService;
@@ -35,7 +36,7 @@ public class ProductController {
 
     @GetMapping("san-pham")
     public ResponseEntity<?> getAllProduct() {
-        List<Product> list = this.productService.getAll();
+        List<ProductResponse> list = this.productService.getAll();
         return ResponseEntity.ok(new ApiResponse<>("lay thanh cong", list));
     }
 
@@ -52,7 +53,31 @@ public class ProductController {
         if(exitName == true) {
             return ResponseEntity.status(409).body(new ApiResponse<>("trung ten san pham", null));
         }
+        Product product = this.productService.createProduct(productRequest);
+        ProductResponse productResponse = this.productService.hanldeResponse(product);
+        return ResponseEntity.status(201).body(new ApiResponse<>("tao moi thanh cong", productResponse));
+    }
 
-        return ResponseEntity.status(201).body(new ApiResponse<>("tao moi thanh cong", productRequest));
+    @PutMapping("san-pham")
+    public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@Valid @RequestBody ProductRequest productRequest,
+                                                                      BindingResult result) {
+        Product product = this.productService.getById(productRequest.getId());
+        if(product == null) {
+            return ResponseEntity.status(404).body(new ApiResponse<>("khong tim thay san pham", null));
+        }
+        List<FieldError> errors = result.getFieldErrors();
+        Boolean exitName = this.productService.isNameExit(productRequest.getName());
+        if(result.hasErrors()) {
+            String errorMessages = errors.stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(errorMessages, null));
+        }
+        if(exitName == true && !product.getName().equals(productRequest.getName())) {
+            return ResponseEntity.status(409).body(new ApiResponse<>("trung ten san pham", null));
+        }
+        Product newProduct = this.productService.updateProduct(productRequest);
+        ProductResponse productResponse = this.productService.hanldeResponse(newProduct);
+        return ResponseEntity.status(200).body(new ApiResponse<>("sua thanh cong", productResponse));
     }
 }

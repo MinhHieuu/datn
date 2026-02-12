@@ -1,42 +1,23 @@
-package com.beeshop.sd44.entity;
+package com.beeshop.sd44.dto.request;
 
-import jakarta.persistence.*;
+import com.beeshop.sd44.entity.Image;
 
 import java.util.List;
 import java.util.UUID;
 
-@Entity
-@Table(name = "san_pham_chi_tiet")
-public class ProductDetail {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+public class ProductDetailRequest {
     private UUID id;
-    @Column(name = "ten")
     private String name;
-    @Column(name = "mo_ta")
     private String description;
-    @Column(name = "so_luong")
     private Integer quantity;
-    @Column(name = "gia_nhap")
     private Double costPrice;
-    @Column(name = "gia_ban")
     private Double salePrice;
     private boolean deleteFlag;
-    @ManyToOne
-    @JoinColumn(name = "san_pham_id")
-    private Product product;
-    @ManyToOne
-    @JoinColumn(name = "size_id")
-    private Size size;
-    @ManyToOne
-    @JoinColumn(name = "mau_sac_id")
-    private Color color;
-    @OneToMany(mappedBy = "productDetail")
+    private UUID productId;
+    private UUID sizeId;
+    private UUID colorId;
     private List<Image> images;
-    @OneToMany(mappedBy = "productDetail")
-    private List<CartDetail> listCartDetail;
-    @OneToMany(mappedBy = "productDetail")
-    private List<OrderDetail> detailList;
+
     public UUID getId() {
         return id;
     }
@@ -93,43 +74,35 @@ public class ProductDetail {
         this.deleteFlag = deleteFlag;
     }
 
-    public Product getProduct() {
-        return product;
+    public UUID getProductId() {
+        return productId;
     }
 
-    public void setProduct(Product product) {
-        this.product = product;
+    public void setProductId(UUID productId) {
+        this.productId = productId;
     }
 
-    public Size getSize() {
-        return size;
+    public UUID getSizeId() {
+        return sizeId;
     }
 
-    public void setSize(Size size) {
-        this.size = size;
+    public void setSizeId(UUID sizeId) {
+        this.sizeId = sizeId;
     }
 
-    public Color getColor() {
-        return color;
+    public UUID getColorId() {
+        return colorId;
     }
 
-    public void setColor(Color color) {
-        this.color = color;
+    public void setColorId(UUID colorId) {
+        this.colorId = colorId;
     }
 
     public List<Image> getImages() {
         return images;
     }
 
-    public void setImages(List<Image> imageList) {
-        this.images = imageList;
-    }
-
-    public List<CartDetail> getListCartDetail() {
-        return listCartDetail;
-    }
-
-    public void setListCartDetail(List<CartDetail> listCartDetail) {
-        this.listCartDetail = listCartDetail;
+    public void setImages(List<Image> images) {
+        this.images = images;
     }
 }

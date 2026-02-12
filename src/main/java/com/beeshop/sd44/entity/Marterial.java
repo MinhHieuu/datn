@@ -27,11 +27,11 @@ public class Marterial {
         this.id = id;
     }
 
-    public String getTen() {
+    public String getName() {
         return name;
     }
 
-    public void setTen(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 

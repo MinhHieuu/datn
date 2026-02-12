@@ -11,7 +11,7 @@ public class ProductResponse {
     private String marterial;
     private String brand;
     private Date createdAt;
-
+    private Date updatedAt;
     public UUID getId() {
         return id;
     }
@@ -66,5 +66,13 @@ public class ProductResponse {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Date getUpdatedAt() {
+        return this.updatedAt;
     }
 }
