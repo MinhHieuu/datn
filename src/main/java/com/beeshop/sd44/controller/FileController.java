@@ -14,7 +14,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/upload")
 public class FileController {
     @Value("${beeshop.upload-file.base-uri}")
     private String baseUri;
@@ -31,7 +31,8 @@ public class FileController {
     }
 
     @PostMapping("multiple")
-    public ResponseEntity<?> uploadMultiple(@RequestParam("file") MultipartFile[] files, @RequestParam("folder") String folder) throws URISyntaxException {
+    public ResponseEntity<?> uploadMultiple(@RequestParam("file") MultipartFile[] files,
+                                            @RequestParam("folder") String folder) throws URISyntaxException {
         this.fileService.createDirectory(baseUri + folder);
         List<String> list = this.fileService.uploads(files, folder);
         return ResponseEntity.ok().body(new ApiResponse<>("upload success", list));

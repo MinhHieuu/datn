@@ -1,7 +1,5 @@
 package com.beeshop.sd44.dto.request;
 
-import com.beeshop.sd44.entity.Image;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +14,7 @@ public class ProductDetailRequest {
     private UUID productId;
     private UUID sizeId;
     private UUID colorId;
-    private List<Image> images;
+    private List<String> images;
 
     public UUID getId() {
         return id;
@@ -98,11 +96,11 @@ public class ProductDetailRequest {
         this.colorId = colorId;
     }
 
-    public List<Image> getImages() {
+    public List<String> getImages() {
         return images;
     }
 
-    public void setImages(List<Image> images) {
+    public void setImages(List<String> images) {
         this.images = images;
     }
 }

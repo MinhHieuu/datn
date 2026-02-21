@@ -13,10 +13,10 @@ public class ProductDetailResponse {
     private Double costPrice;
     private Double salePrice;
     private boolean deleteFlag;
-    private UUID productId;
-    private UUID sizeId;
-    private UUID colorId;
-    private List<Image> images;
+    private String productName;
+    private String sizeName;
+    private String colorName;
+    private List<String> images;
 
     public UUID getId() {
         return id;
@@ -74,35 +74,35 @@ public class ProductDetailResponse {
         this.deleteFlag = deleteFlag;
     }
 
-    public UUID getProductId() {
-        return productId;
+    public String getProductName() {
+        return productName;
     }
 
-    public void setProductId(UUID productId) {
-        this.productId = productId;
+    public void setProductName(String productName) {
+        this.productName = productName;
     }
 
-    public UUID getSizeId() {
-        return sizeId;
+    public String getSizeName() {
+        return sizeName;
     }
 
-    public void setSizeId(UUID sizeId) {
-        this.sizeId = sizeId;
+    public void setSizeName(String sizeName) {
+        this.sizeName = sizeName;
     }
 
-    public UUID getColorId() {
-        return colorId;
+    public String getColorName() {
+        return colorName;
     }
 
-    public void setColorId(UUID colorId) {
-        this.colorId = colorId;
+    public void setColorName(String colorName) {
+        this.colorName = colorName;
     }
 
-    public List<Image> getImages() {
+    public List<String> getImages() {
         return images;
     }
 
-    public void setImages(List<Image> images) {
+    public void setImages(List<String> images) {
         this.images = images;
     }
 }

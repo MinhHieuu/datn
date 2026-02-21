@@ -41,4 +41,10 @@ public class Size {
     public void setList(List<ProductDetail> list) {
         this.list = list;
     }
+
+    public Size (UUID id) {
+        this.id = id;
+    }
+
+    public Size(){};
 }

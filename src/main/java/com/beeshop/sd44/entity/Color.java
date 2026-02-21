@@ -41,4 +41,10 @@ public class Color {
     public void setList(List<ProductDetail> list) {
         this.list = list;
     }
+
+    public Color (UUID id) {
+        this.id = id;
+    }
+
+    public Color(){};
 }

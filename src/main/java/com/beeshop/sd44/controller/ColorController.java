@@ -20,7 +20,7 @@ public class ColorController {
     @Autowired
     private ColorService service;
     @GetMapping("mau-sac")
-    public ResponseEntity<?> getAll(Model model){
+    public ResponseEntity<?> getAll(){
         List<Color> list = this.service.getAll();
         return ResponseEntity.ok().body(new ApiResponse<>("lay thanh cong", list));
     }
