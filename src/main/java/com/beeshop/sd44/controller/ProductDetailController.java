@@ -12,6 +12,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,7 +31,7 @@ public class ProductDetailController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ProductDetailResponse>> createProduct(@Valid @RequestBody ProductDetailRequest detail,
+    public ResponseEntity<ApiResponse<ProductDetailResponse>> createProductDetail(@Valid @RequestBody ProductDetailRequest detail,
                                                                     BindingResult result) {
         List<FieldError> errors = result.getFieldErrors();
         Boolean exitName = this.productDetailService.isNameExit(detail.getName());
@@ -55,5 +56,36 @@ public class ProductDetailController {
         return ResponseEntity.status(201).body(new ApiResponse<>("tao moi thanh cong", productDetail));
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<ApiResponse<ProductDetail>> deleteProductDetail(@PathVariable("id")UUID id){
+        this.productDetailService.delete(id);
+        return ResponseEntity.ok().body(new ApiResponse<>("xoa thanh cong", null));
+    }
+
+    @PutMapping("")
+    public ResponseEntity<ApiResponse<ProductDetailResponse>> updateProductDetail(@Valid @RequestBody ProductDetailRequest request,
+                                                                          BindingResult result) {
+        ProductDetail detail = this.productDetailService.getById(request.getId());
+        List<FieldError> errors = result.getFieldErrors();
+        Boolean exitName = this.productDetailService.isNameExit(request.getName());
+        if(result.hasErrors()) {
+            String errorMessages = errors.stream()
+                    .map(FieldError::getDefaultMessage)
+                    .collect(Collectors.joining(", "));
+            return ResponseEntity.badRequest().body(new ApiResponse<>(errorMessages, null));
+        }
+        if(!request.getName().equals(detail.getName()) && exitName == true) {
+            return ResponseEntity.status(409).body(new ApiResponse<>("trung ten san pham", null));
+        }
+        Color color = new Color(request.getColorId());
+        Size size = new Size(request.getSizeId());
+        Product product = new Product();
+        product.setId(request.getProductId());
+        Boolean checkExit = this.productDetailService.isProductExit(product, color, size);
+        if(checkExit == true) {
+            return ResponseEntity.status(409).body(new ApiResponse<>("san pham da ton tai", null));
+        }
+        return ResponseEntity.ok().body(new ApiResponse<>("sua thanh cong", this.productDetailService.updateProduct(request)));
+    }
 
 }

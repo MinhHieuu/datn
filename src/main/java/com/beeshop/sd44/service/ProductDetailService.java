@@ -85,7 +85,7 @@ public class ProductDetailService {
 
     public void delete(UUID id) {
         ProductDetail detail = this.getById(id);
-        detail.setDeleteFlag(false);
+        detail.setDeleteFlag(true);
     }
 
     public List<ProductDetailResponse> getListDetail(boolean deleteFlag) {
