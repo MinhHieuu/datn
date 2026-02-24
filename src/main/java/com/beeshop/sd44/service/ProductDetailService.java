@@ -117,4 +117,13 @@ public class ProductDetailService {
         }
         return images;
     }
+
+    public List<ProductDetailResponse> search(String name, UUID colorId, UUID sizeId, Double salePrice) {
+        List<ProductDetail> list = this.productDetailRepo.searchProductDetail(name, colorId, sizeId, salePrice);
+        List<ProductDetailResponse> listResponse = new ArrayList<>();
+        for(ProductDetail detail : list) {
+            listResponse.add(buildResponse(detail));
+        }
+        return listResponse;
+    }
 }

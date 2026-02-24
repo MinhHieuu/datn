@@ -88,4 +88,15 @@ public class ProductDetailController {
         return ResponseEntity.ok().body(new ApiResponse<>("sua thanh cong", this.productDetailService.updateProduct(request)));
     }
 
+    @GetMapping("search")
+    public ResponseEntity<ApiResponse<List<ProductDetailResponse>>> search(@RequestParam(value = "name", required = false) String name,
+                                                                           @RequestParam(value = "color", required = false) UUID colorId,
+                                                                           @RequestParam(value = "size", required = false) UUID sizeId,
+                                                                           @RequestParam(value = "salePrice", required = false) Double salePrice){
+        List<ProductDetailResponse> listResponse = this.productDetailService.search(name, colorId, sizeId, salePrice);
+        if(listResponse.isEmpty()) {
+            return ResponseEntity.status(404).body(new ApiResponse<>("khong tim thay san pham", null));
+        }
+        return ResponseEntity.ok().body(new ApiResponse<>("tim thanh cong", listResponse));
+    }
 }
