@@ -1,0 +1,48 @@
+package com.beeshop.sd44.controller;
+
+import com.beeshop.sd44.dto.request.LoginRequest;
+import com.beeshop.sd44.dto.response.LoginResponse;
+import com.beeshop.sd44.dto.response.UserResponse;
+import com.beeshop.sd44.entity.ApiResponse;
+import com.beeshop.sd44.entity.User;
+import com.beeshop.sd44.service.AuthService;
+
+import com.beeshop.sd44.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AuthController {
+    private final AuthService authService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
+    public AuthController(AuthService authService, PasswordEncoder passwordEncoder,  UserService userService) {
+        this.passwordEncoder = passwordEncoder;
+        this.authService = authService;
+        this.userService = userService;
+    }
+    @GetMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws EntityNotFoundException {
+        LoginResponse response = this.authService.login(loginRequest);
+        if(response == null) {
+            return ResponseEntity.status(401).body(new ApiResponse<>("sai email hoac mat khau", null));
+        }
+        return ResponseEntity.ok().body(new ApiResponse<>("dang nhap thanh cong", response));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+        if(userService.isUserExit(user.getEmail() , user.getPhone())) {
+            return ResponseEntity.status(409).body(new ApiResponse<>("email hoac sdt da duoc dang ky", null));
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setDeleteFlag(false);
+        UserResponse response = this.authService.buildRespone(userService.createUser(user));
+        return ResponseEntity.status(201).body(new ApiResponse<>("tao moi thanh cong", response));
+    }
+}
