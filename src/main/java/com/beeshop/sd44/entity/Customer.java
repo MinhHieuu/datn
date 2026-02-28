@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 @Entity
+@Table(name = "khach_hang")
 public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

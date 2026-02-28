@@ -1,6 +1,7 @@
 package com.beeshop.sd44.controller;
 
 import com.beeshop.sd44.dto.request.LoginRequest;
+import com.beeshop.sd44.dto.request.RefreshRequest;
 import com.beeshop.sd44.dto.response.LoginResponse;
 import com.beeshop.sd44.dto.response.UserResponse;
 import com.beeshop.sd44.entity.ApiResponse;
@@ -11,6 +12,7 @@ import com.beeshop.sd44.service.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,23 +23,48 @@ public class AuthController {
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-    public AuthController(AuthService authService, PasswordEncoder passwordEncoder,  UserService userService) {
+
+    public AuthController(AuthService authService, PasswordEncoder passwordEncoder, UserService userService) {
         this.passwordEncoder = passwordEncoder;
         this.authService = authService;
         this.userService = userService;
     }
+
     @GetMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) throws EntityNotFoundException {
         LoginResponse response = this.authService.login(loginRequest);
-        if(response == null) {
+        if (response == null) {
             return ResponseEntity.status(401).body(new ApiResponse<>("sai email hoac mat khau", null));
         }
-        return ResponseEntity.ok().body(new ApiResponse<>("dang nhap thanh cong", response));
+
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, "Bearer " + response.getAccessToken())
+                .body(new ApiResponse<>("dang nhap thanh cong", response));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody RefreshRequest request) {
+        String newAccess = authService.refreshAccessToken(request.getRefreshToken());
+        if (newAccess == null) {
+            return ResponseEntity.status(401).body(new ApiResponse<>("refresh token khong hop le hoac het han", null));
+        }
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.AUTHORIZATION, "Bearer " + newAccess)
+                .body(new ApiResponse<>("cap token moi thanh cong", newAccess));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody RefreshRequest request) {
+        boolean ok = authService.revokeRefreshToken(request.getRefreshToken());
+        if (!ok) {
+            return ResponseEntity.status(400).body(new ApiResponse<>("refresh token khong tim thay", null));
+        }
+        return ResponseEntity.ok().body(new ApiResponse<>("dang xuat thanh cong", null));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
-        if(userService.isUserExit(user.getEmail() , user.getPhone())) {
+        if (userService.isUserExit(user.getEmail(), user.getPhone())) {
             return ResponseEntity.status(409).body(new ApiResponse<>("email hoac sdt da duoc dang ky", null));
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));

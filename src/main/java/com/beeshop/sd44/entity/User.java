@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(name = "nguoi_dung")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -30,7 +31,8 @@ public class User {
     private Cart cart;
     @OneToOne(mappedBy = "user")
     private Customer customer;
-
+    @OneToMany(mappedBy = "user")
+    private List<RefreshToken> listToken;
     public UUID getId() {
         return id;
     }
