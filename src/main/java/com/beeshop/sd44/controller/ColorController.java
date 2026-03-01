@@ -7,7 +7,6 @@ import com.beeshop.sd44.service.ColorService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +18,9 @@ import java.util.UUID;
 public class ColorController {
     @Autowired
     private ColorService service;
+
     @GetMapping("mau-sac")
-    public ResponseEntity<?> getAll(){
+    public ResponseEntity<?> getAll() {
         List<Color> list = this.service.getAll();
         return ResponseEntity.ok().body(new ApiResponse<>("lay thanh cong", list));
     }
@@ -28,10 +28,10 @@ public class ColorController {
     @PostMapping("mau-sac")
     public ResponseEntity<?> create(@Valid @RequestBody Color color, BindingResult result) {
         boolean exitsMau = this.service.isNameExit(color.getName());
-        if(exitsMau == true) {
+        if (exitsMau == true) {
             return ResponseEntity.status(409).body(new ApiResponse<Marterial>("da ton tai", null));
         }
-        if(result.hasErrors()) {
+        if (result.hasErrors()) {
             String error = result.getFieldError().getDefaultMessage();
             return ResponseEntity.status(400).body(new ApiResponse<>(error, null));
         }
@@ -40,9 +40,9 @@ public class ColorController {
     }
 
     @DeleteMapping("mau-sac/{id}")
-    public ResponseEntity<?> delete (@PathVariable("id") UUID id) {
+    public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
         Color color = this.service.getById(id);
-        if(color == null) {
+        if (color == null) {
             return ResponseEntity.badRequest().body(new ApiResponse<>("khong tim thay", null));
         }
         this.service.handleDelete(color);
@@ -50,8 +50,8 @@ public class ColorController {
     }
 
     @PutMapping("mau-sac/{id}")
-    public ResponseEntity<?> update (@PathVariable("id")UUID id,
-                                     @Valid @RequestBody Color newColor, BindingResult result) {
+    public ResponseEntity<?> update(@PathVariable("id") UUID id,
+            @Valid @RequestBody Color newColor, BindingResult result) {
         Color color = this.service.getById(id);
         if (color == null) {
             return ResponseEntity.status(404).body(new ApiResponse<>("khong tim thay", null));

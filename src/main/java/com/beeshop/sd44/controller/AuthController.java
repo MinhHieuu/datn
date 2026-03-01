@@ -68,6 +68,7 @@ public class AuthController {
             return ResponseEntity.status(409).body(new ApiResponse<>("email hoac sdt da duoc dang ky", null));
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole("user"); // Mặc định role là "user"
         user.setDeleteFlag(false);
         UserResponse response = this.authService.buildRespone(userService.createUser(user));
         return ResponseEntity.status(201).body(new ApiResponse<>("tao moi thanh cong", response));
