@@ -33,6 +33,7 @@ public class User {
     private Customer customer;
     @OneToMany(mappedBy = "user")
     private List<RefreshToken> listToken;
+
     public UUID getId() {
         return id;
     }
@@ -127,5 +128,12 @@ public class User {
 
     public void setCustomer(Customer customer) {
         this.customer = customer;
+    }
+
+    public User() {
+    };
+
+    public User(UUID id) {
+        this.id = id;
     }
 }

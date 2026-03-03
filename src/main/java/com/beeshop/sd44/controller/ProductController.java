@@ -41,7 +41,7 @@ public class ProductController {
     }
 
     @PostMapping("san-pham")
-    public ResponseEntity<?> createProduct(@Valid @RequestBody ProductRequest productRequest, BindingResult result) {
+    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@Valid @RequestBody ProductRequest productRequest, BindingResult result) {
         List<FieldError> errors = result.getFieldErrors();
         Boolean exitName = this.productService.isNameExit(productRequest.getName());
         if(result.hasErrors()) {

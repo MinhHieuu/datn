@@ -1,7 +1,5 @@
 package com.beeshop.sd44.dto.response;
 
-import com.beeshop.sd44.entity.Image;
-
 import java.util.List;
 import java.util.UUID;
 

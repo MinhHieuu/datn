@@ -7,7 +7,6 @@ import com.beeshop.sd44.repository.ProductDetailRepo;
 
 import org.springframework.stereotype.Service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,9 +19,10 @@ public class ProductDetailService {
     private final ColorService colorService;
     private final SizeService sizeService;
     private final ImageService imageService;
+
     public ProductDetailService(ProductDetailRepo productDetailRepo, ProductService productService,
-                                ColorService colorService, SizeService sizeService,
-                                ImageService imageService) {
+            ColorService colorService, SizeService sizeService,
+            ImageService imageService) {
         this.productDetailRepo = productDetailRepo;
         this.productService = productService;
         this.colorService = colorService;
@@ -112,7 +112,7 @@ public class ProductDetailService {
     private List<String> getImages(ProductDetail detail) {
         List<String> images = new ArrayList<>();
         List<Image> list = imageService.getImageByProductDetail(detail);
-        for(int i = 0; i < list.size(); i++) {
+        for (int i = 0; i < list.size(); i++) {
             images.add(list.get(i).getUrl());
         }
         return images;
@@ -121,9 +121,10 @@ public class ProductDetailService {
     public List<ProductDetailResponse> search(String name, UUID colorId, UUID sizeId, Double salePrice) {
         List<ProductDetail> list = this.productDetailRepo.searchProductDetail(name, colorId, sizeId, salePrice);
         List<ProductDetailResponse> listResponse = new ArrayList<>();
-        for(ProductDetail detail : list) {
+        for (ProductDetail detail : list) {
             listResponse.add(buildResponse(detail));
         }
         return listResponse;
     }
+
 }

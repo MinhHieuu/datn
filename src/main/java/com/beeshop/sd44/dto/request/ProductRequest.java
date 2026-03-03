@@ -7,8 +7,8 @@ public class ProductRequest {
     private String name;
     private String image;
     private Integer status;
-    private UUID MarterialId;
-    private UUID BrandId;
+    private UUID marterialId;
+    private UUID brandId;
 
     public UUID getId() {
         return id;
@@ -43,18 +43,18 @@ public class ProductRequest {
     }
 
     public UUID getMarterialId() {
-        return MarterialId;
+        return marterialId;
     }
 
     public void setMarterialId(UUID marterialId) {
-        MarterialId = marterialId;
+        this.marterialId = marterialId;
     }
 
     public UUID getBrandId() {
-        return BrandId;
+        return brandId;
     }
 
     public void setBrandId(UUID brandId) {
-        BrandId = brandId;
+        this.brandId = brandId;
     }
 }
