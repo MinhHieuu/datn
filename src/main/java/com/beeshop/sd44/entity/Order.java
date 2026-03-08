@@ -34,6 +34,8 @@ public class Order {
     private String paymentMethod;
     @Column(name = "trang_thai")
     private Integer status;
+    @Column(name = "trang_thai_thanh_toan")
+    private Integer paymentStatus;
     @Column(name = "phan_loai")
     private Integer type;
     @ManyToOne
@@ -162,5 +164,13 @@ public class Order {
 
     public int getSum() {
         return this.sum;
+    }
+
+    public Integer getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(Integer paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 }

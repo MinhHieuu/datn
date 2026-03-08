@@ -21,8 +21,9 @@ public class OrderService {
     private final UserService userService;
     private final ProductDetailService productDetailService;
     private final CartService cartService;
+
     public OrderService(OrderRepo orderRepo, OrderDetailRepo orderDetailRepo, UserService userService,
-                        ProductDetailService productDetailService, CartService cartService) {
+            ProductDetailService productDetailService, CartService cartService) {
         this.orderDetailRepo = orderDetailRepo;
         this.orderRepo = orderRepo;
         this.userService = userService;
@@ -32,7 +33,7 @@ public class OrderService {
 
     public OrderResponse hanldePlaceOrder(OrderRequest orderRequest, UUID userID) {
         Order order = createOrder(orderRequest, userID);
-        for(ProductDetailRequest pdRequest: orderRequest.getProductDetail()) {
+        for (ProductDetailRequest pdRequest : orderRequest.getProductDetail()) {
             ProductDetail productDetail = productDetailService.getById(pdRequest.getId());
             OrderDetail orderDetail = new OrderDetail();
             orderDetail.setOrder(order);
@@ -54,16 +55,31 @@ public class OrderService {
         order.setNote(orderRequest.getNote());
         order.setTotal(orderRequest.getTotal());
         order.setCode("HD" + order.getSum());
-        if(orderRequest.getPaymentMethod().equals("COD")) {
-            order.setStatus(0);
-        }else {
-            order.setStatus(1);
+        if (orderRequest.getPaymentMethod().equals("COD")) {
+            order.setPaymentStatus(1);
+        } else if (orderRequest.getPaymentMethod().equals("MOMO")) {
+            order.setPaymentStatus(0); // đang thanh toán
         }
         return this.orderRepo.save(order);
     }
 
+    public Order updateOrderStatus(UUID orderId, Integer status) {
+        Order order = orderRepo.findById(orderId).orElse(null);
+        if (order != null) {
+            order.setStatus(status);
+            order.setPaymentDate(new Date());
+            return orderRepo.save(order);
+        }
+        return null;
+    }
+
+    public Order getOrderById(UUID orderId) {
+        return orderRepo.findById(orderId).orElse(null);
+    }
+
     private OrderResponse builresponse(Order order) {
         OrderResponse response = new OrderResponse();
+        response.setId(order.getId().toString());
         response.setCode(order.getCode());
         response.setNote(order.getNote());
         response.setPaymentDate(order.getPaymentDate());
@@ -74,7 +90,7 @@ public class OrderService {
         response.setUserResponse(userService.buildRespone(userService.getUserById(order.getUser().getId())));
         List<OrderDetail> odList = orderDetailRepo.getOrderDetailByOrder(order);
         List<ProductDetailResponse> listProduct = new ArrayList<>();
-        for(OrderDetail orderDetail : odList) {
+        for (OrderDetail orderDetail : odList) {
             listProduct.add(productDetailService.buildResponse(orderDetail.getProductDetail()));
         }
         response.setProductDetailResponses(listProduct);

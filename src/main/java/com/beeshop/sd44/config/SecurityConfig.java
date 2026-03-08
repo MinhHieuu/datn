@@ -1,5 +1,6 @@
 package com.beeshop.sd44.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.io.Decoders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +18,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -36,12 +38,24 @@ public class SecurityConfig {
     }
 
     @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+    //
+    // @Bean
+    // public ObjectMapper objectMapper() {
+    // return new ObjectMapper();
+    // }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(c -> c.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/login", "/", "/register", "/products", "/refresh").permitAll()
+                        .requestMatchers("/api/login", "/", "/api/register", "/api/products", "/api/refresh",
+                                "/api/order/momo-callback", "/api/order/vnpay-return")
+                        .permitAll()
                         .requestMatchers("/admin/**").hasRole("admin")
                         .anyRequest().authenticated())
                 .logout(logout -> logout.disable())

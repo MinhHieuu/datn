@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 public class OrderResponse {
+    private String id;
     private String code;
     private String note;
     private Date createdAt;
@@ -15,8 +16,16 @@ public class OrderResponse {
     private Integer status;
     private UserResponse userResponse;
     private List<ProductDetailResponse> productDetailResponses;
-//    private Integer quantity;
-//    private Integer price;
+    // private Integer quantity;
+    // private Integer price;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getCode() {
         return code;
@@ -106,19 +115,19 @@ public class OrderResponse {
         this.paymentMethod = paymentMethod;
     }
 
-    //    public Integer getQuantity() {
-//        return quantity;
-//    }
-//
-//    public void setQuantity(Integer quantity) {
-//        this.quantity = quantity;
-//    }
-//
-//    public Integer getPrice() {
-//        return price;
-//    }
-//
-//    public void setPrice(Integer price) {
-//        this.price = price;
-//    }
+    // public Integer getQuantity() {
+    // return quantity;
+    // }
+    //
+    // public void setQuantity(Integer quantity) {
+    // this.quantity = quantity;
+    // }
+    //
+    // public Integer getPrice() {
+    // return price;
+    // }
+    //
+    // public void setPrice(Integer price) {
+    // this.price = price;
+    // }
 }
