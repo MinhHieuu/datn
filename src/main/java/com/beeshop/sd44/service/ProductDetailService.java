@@ -117,8 +117,16 @@ public class ProductDetailService {
         return this.productDetailRepo.existsByName(name);
     }
 
+    public Boolean isNameExit(String name, UUID excludeId) {
+        return this.productDetailRepo.existsByNameAndIdNot(name, excludeId);
+    }
+
     public Boolean isProductExit(Product product, Color color, Size size) {
         return this.productDetailRepo.existsByProductAndColorAndSize(product, color, size);
+    }
+
+    public Boolean isProductExit(Product product, Color color, Size size, UUID excludeId) {
+        return this.productDetailRepo.existsByProductAndColorAndSizeAndIdNot(product, color, size, excludeId);
     }
 
     private List<String> getImages(ProductDetail detail) {

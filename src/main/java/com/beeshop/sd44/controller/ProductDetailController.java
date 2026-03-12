@@ -72,23 +72,26 @@ public class ProductDetailController {
     public ResponseEntity<ApiResponse<ProductDetailResponse>> updateProductDetail(@Valid @RequestBody ProductDetailRequest request,
                                                                           BindingResult result) {
         ProductDetail detail = this.productDetailService.getById(request.getId());
+        if (detail == null) {
+            return ResponseEntity.status(404).body(new ApiResponse<>("khong tim thay san pham chi tiet", null));
+        }
         List<FieldError> errors = result.getFieldErrors();
-        Boolean exitName = this.productDetailService.isNameExit(request.getName());
         if(result.hasErrors()) {
             String errorMessages = errors.stream()
                     .map(FieldError::getDefaultMessage)
                     .collect(Collectors.joining(", "));
             return ResponseEntity.badRequest().body(new ApiResponse<>(errorMessages, null));
         }
-        if(!request.getName().equals(detail.getName()) && exitName == true) {
+        // Check name conflict, excluding the current record
+        if (this.productDetailService.isNameExit(request.getName(), request.getId())) {
             return ResponseEntity.status(409).body(new ApiResponse<>("trung ten san pham", null));
         }
+        // Check product+color+size conflict, excluding the current record
         Color color = new Color(request.getColorId());
         Size size = new Size(request.getSizeId());
         Product product = new Product();
         product.setId(request.getProductId());
-        Boolean checkExit = this.productDetailService.isProductExit(product, color, size);
-        if(checkExit == true) {
+        if (this.productDetailService.isProductExit(product, color, size, request.getId())) {
             return ResponseEntity.status(409).body(new ApiResponse<>("san pham da ton tai", null));
         }
         return ResponseEntity.ok().body(new ApiResponse<>("sua thanh cong", this.productDetailService.updateProduct(request)));
