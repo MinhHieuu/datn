@@ -80,7 +80,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5178"));// tên miền được truy cập tới sever
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://dakfj-nylg.vercel.app"));// tên miền được truy cập tới sever
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);// cho client gửi kèm cookie
