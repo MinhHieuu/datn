@@ -1,13 +1,17 @@
 package com.beeshop.sd44.service;
 
 import com.beeshop.sd44.dto.request.EmployeeOrderRequest;
+import com.beeshop.sd44.dto.request.OrderFilterRequest;
 import com.beeshop.sd44.dto.request.OrderRequest;
 import com.beeshop.sd44.dto.request.ProductDetailRequest;
 import com.beeshop.sd44.dto.response.OrderResponse;
 import com.beeshop.sd44.dto.response.ProductDetailResponse;
 import com.beeshop.sd44.entity.*;
+import com.beeshop.sd44.repository.CartDetailRepo;
+import com.beeshop.sd44.repository.CartRepo;
 import com.beeshop.sd44.repository.OrderDetailRepo;
 import com.beeshop.sd44.repository.OrderRepo;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,28 +27,24 @@ public class OrderService {
     private final UserService userService;
     private final ProductDetailService productDetailService;
     private final VoucherService voucherService;
+    private final CartDetailRepo cartDetailRepo;
 
     public OrderService(OrderRepo orderRepo, OrderDetailRepo orderDetailRepo, UserService userService,
-            ProductDetailService productDetailService, VoucherService voucherService) {
+            ProductDetailService productDetailService, VoucherService voucherService, CartDetailRepo cartDetailRepo) {
         this.orderDetailRepo = orderDetailRepo;
         this.orderRepo = orderRepo;
         this.userService = userService;
         this.productDetailService = productDetailService;
         this.voucherService = voucherService;
+        this.cartDetailRepo = cartDetailRepo;
     }
 
     /**
      * B3-B4: Đặt hàng online — BE tính toán toàn bộ tiền.
      */
+    @Transactional
     public OrderResponse hanldePlaceOrder(OrderRequest orderRequest, UUID userID) {
-        if (orderRequest.getProductDetail() == null || orderRequest.getProductDetail().isEmpty()) {
-            throw new IllegalArgumentException("Gio hang trong, khong the dat hang");
-        }
-        if (orderRequest.getPaymentMethod() == null || orderRequest.getPaymentMethod().isBlank()) {
-            throw new IllegalArgumentException("Phuong thuc thanh toan khong duoc de trong");
-        }
-
-        // 1. Tính tổng tiền hàng (subTotal) từ DB — KHÔNG tin FE
+        // 1. Tính tổng tiền hàng (subTotal)
         double subTotal = 0;
         for (ProductDetailRequest pdRequest : orderRequest.getProductDetail()) {
             ProductDetail productDetail = productDetailService.getById(pdRequest.getId());
@@ -81,7 +81,7 @@ public class OrderService {
         Order order = new Order();
         order.setUser(userService.getUserById(userID));
         order.setCreatedAt(new Date());
-        order.setType(1); // online
+        order.setType(1); // 1 = online
         order.setPaymentDate(new Date());
         order.setPaymentMethod(orderRequest.getPaymentMethod());
         order.setNote(orderRequest.getNote());
@@ -93,7 +93,7 @@ public class OrderService {
         if ("COD".equals(orderRequest.getPaymentMethod())) {
             order.setPaymentStatus(0); // chưa thanh toán
             order.setStatus(0); // chờ xác nhận
-        } else if ("Online".equals(orderRequest.getPaymentMethod())) {
+        } else if ("VNPAY".equals(orderRequest.getPaymentMethod())) {
             order.setPaymentStatus(0); // đang thanh toán
             order.setStatus(1); // đã xác nhận
         }
@@ -101,6 +101,7 @@ public class OrderService {
         order = this.orderRepo.save(order);
 
         // 6. Tạo order detail + trừ tồn kho
+        List<UUID> cartIdsToDelete = new ArrayList<>();
         for (ProductDetailRequest pdRequest : orderRequest.getProductDetail()) {
             ProductDetail productDetail = productDetailService.getById(pdRequest.getId());
             OrderDetail orderDetail = new OrderDetail();
@@ -111,7 +112,11 @@ public class OrderService {
             orderDetailRepo.save(orderDetail);
             // Trừ tồn kho
             productDetail.setQuantity(productDetail.getQuantity() - pdRequest.getQuantity());
+            cartIdsToDelete.add(productDetail.getId());
         }
+
+        // 7. Xóa sp giỏ hàng
+        cartDetailRepo.deleteByProductDetailIdIn(cartIdsToDelete);
 
         return buildOrderResponse(order, subTotal, discount);
     }
@@ -138,7 +143,7 @@ public class OrderService {
         order.setCreatedAt(new Date());
         Integer type = orderRequest.getType();
         if (type == null) {
-            type = 1;
+            type = 0; // 0 = tại quầy (mặc định)
         }
         order.setType(type);
         order.setPaymentDate(new Date());
@@ -146,16 +151,16 @@ public class OrderService {
         order.setNote(orderRequest.getNote());
         order.setTotal(orderRequest.getTotal());
         order.setCode("HD" + order.getSum());
-        if (type == 2) {
+        if (type == 1) { // 1 = online
             order.setShippingFee(SHIPPING_FEE_DELIVERY);
-        } else {
+        } else { // 0 = tại quầy
             order.setShippingFee(0);
         }
         if ("CASH".equals(orderRequest.getPaymentMethod())) {
-            order.setPaymentStatus(1);
+            order.setPaymentStatus(1); // đã thanh toán
             order.setStatus(1);
-        } else if ("Online".equals(orderRequest.getPaymentMethod())) {
-            order.setPaymentStatus(0);
+        } else if ("VNPAY".equals(orderRequest.getPaymentMethod())) {
+            order.setPaymentStatus(0); // đang thanh toán
             order.setStatus(1);
         }
         return this.orderRepo.save(order);
@@ -188,6 +193,7 @@ public class OrderService {
         response.setTotal(order.getTotal());
         response.setType(order.getType());
         response.setStatus(order.getStatus());
+
         response.setPaymentStatus(order.getPaymentStatus());
         response.setPaymentMethod(order.getPaymentMethod());
         if (order.getVoucher() != null) {
@@ -202,10 +208,33 @@ public class OrderService {
         response.setProductDetailResponses(listProduct);
         return response;
     }
+    private OrderResponse buildOrderResponseWithoutDetail(Order order, double subTotal, double discount) {
+        OrderResponse response = new OrderResponse();
+        response.setId(order.getId().toString());
+        response.setCode(order.getCode());
+        response.setNote(order.getNote());
+        response.setPaymentDate(order.getPaymentDate());
+        response.setCreatedAt(order.getCreatedAt());
+        response.setShippingFee(order.getShippingFee());
+        response.setSubTotal(subTotal);
+        response.setDiscount(discount);
+        response.setTotal(order.getTotal());
+        response.setType(order.getType());
+        response.setStatus(order.getStatus());
+        response.setPaymentStatus(order.getPaymentStatus());
+        response.setPaymentMethod(order.getPaymentMethod());
+        if (order.getVoucher() != null) {
+            response.setVoucherCode(order.getVoucher().getMa());
+        }
+        return response;
+    }
 
     // Backward compatible — các nơi khác gọi builresponse(order) cũ
     private OrderResponse builresponse(Order order) {
         return buildOrderResponse(order, order.getTotal() != null ? order.getTotal() : 0, 0);
+    }
+    private OrderResponse builresponseWithoutDetail(Order order) {
+        return buildOrderResponseWithoutDetail(order, order.getTotal() != null ? order.getTotal() : 0, 0);
     }
 
     public List<OrderResponse> getOrdersByUserId(UUID userId) {
@@ -221,7 +250,23 @@ public class OrderService {
         List<Order> orders = orderRepo.findAllByOrderByCreatedAtDesc();
         List<OrderResponse> responses = new ArrayList<>();
         for (Order order : orders) {
-            responses.add(builresponse(order));
+            responses.add(builresponseWithoutDetail(order));
+        }
+        return responses;
+    }
+
+    public List<OrderResponse> getOrdersByFilter(OrderFilterRequest filter) {
+        List<Order> orders = orderRepo.findOrdersByFilter(
+            filter.getStatus(),
+            filter.getPaymentStatus(),
+            filter.getType(),
+            filter.getPaymentMethod(),
+            filter.getFromDate(),
+            filter.getToDate()
+        );
+        List<OrderResponse> responses = new ArrayList<>();
+        for (Order order : orders) {
+            responses.add(builresponseWithoutDetail(order));
         }
         return responses;
     }

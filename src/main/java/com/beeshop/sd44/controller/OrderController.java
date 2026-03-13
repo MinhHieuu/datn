@@ -93,11 +93,11 @@ public class OrderController {
         if ("00".equals(responseCode)) {
             // Thanh toán thành công
             orderService.updatePaymentStatus(UUID.fromString(orderId), 1);
-            response.sendRedirect("localhost:8080");
+            response.sendRedirect("http://localhost:3000/order-success");
         } else {
             // Thanh toán thất bại
             orderService.updatePaymentStatus(UUID.fromString(orderId), 3);
-            response.sendRedirect("/api/order/pay");
+            response.sendRedirect("http://localhost:3000/order-error");
         }
     }
 
