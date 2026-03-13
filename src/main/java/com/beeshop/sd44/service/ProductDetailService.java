@@ -3,9 +3,12 @@ package com.beeshop.sd44.service;
 import com.beeshop.sd44.dto.request.ProductDetailRequest;
 import com.beeshop.sd44.dto.response.ProductDetailResponse;
 import com.beeshop.sd44.entity.*;
+import com.beeshop.sd44.repository.ImageRepo;
 import com.beeshop.sd44.repository.ProductDetailRepo;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,15 +22,17 @@ public class ProductDetailService {
     private final ColorService colorService;
     private final SizeService sizeService;
     private final ImageService imageService;
+    private final ImageRepo imageRepo;
 
     public ProductDetailService(ProductDetailRepo productDetailRepo, ProductService productService,
-            ColorService colorService, SizeService sizeService,
+            ColorService colorService, SizeService sizeService, ImageRepo imageRepo,
             ImageService imageService) {
         this.productDetailRepo = productDetailRepo;
         this.productService = productService;
         this.colorService = colorService;
         this.sizeService = sizeService;
         this.imageService = imageService;
+        this.imageRepo = imageRepo;
     }
 
     public List<ProductDetailResponse> getAll() {
@@ -57,6 +62,7 @@ public class ProductDetailService {
         return response;
     }
 
+    @Transactional
     public ProductDetailResponse createProductDetail(ProductDetailRequest request) {
         return buildResponse(buildProductDetail(new ProductDetail(), request));
     }
@@ -71,9 +77,26 @@ public class ProductDetailService {
         detail.setColor((this.colorService.getById(request.getColorId())));
         detail.setSize(this.sizeService.getById(request.getSizeId()));
         detail.setDeleteFlag(request.isDeleteFlag());
+
+        // xu ly luu anh
+        if(!CollectionUtils.isEmpty(request.getImagesDelete())){
+            List<Image> images = this.imageRepo.findByUrlIn(request.getImagesDelete());
+            this.imageRepo.deleteAll(images);
+        }
+
+        List<Image> images = new ArrayList<>();
+        for (String imageUrl : request.getImages()) {
+            Image image = new Image();
+            image.setUrl(imageUrl);
+            image.setProductDetail(detail);
+            images.add(image);
+        }
+        this.imageRepo.saveAll(images);
+
         return this.productDetailRepo.save(detail);
     }
 
+    @Transactional
     public ProductDetailResponse updateProduct(ProductDetailRequest request) {
         return buildResponse(buildProductDetail(this.getById(request.getId()), request));
     }
