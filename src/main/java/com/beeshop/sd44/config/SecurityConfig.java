@@ -56,6 +56,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/employee/**").hasAnyRole("employee", "admin")
                         .requestMatchers("/api/user/**").hasRole("user")
                         .anyRequest().authenticated())
+
                 .logout(logout -> logout.disable())
                 .oauth2ResourceServer(
                         oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));

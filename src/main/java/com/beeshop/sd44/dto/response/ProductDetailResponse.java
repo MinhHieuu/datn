@@ -28,6 +28,15 @@ public class ProductDetailResponse {
     private String colorName;
     private List<String> images;
     private Integer quantityInOrder;
+    private Double price;
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
 
     public Integer getQuantityInOrder() {
         return quantityInOrder;

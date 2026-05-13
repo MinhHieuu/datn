@@ -73,6 +73,7 @@ public class ProductDetailService {
         response.setColorId(detail.getColor().getId());
         response.setColorName(detail.getColor().getName());
         response.setImages(this.getImages(detail));
+        response.setPrice(detail.getSalePrice());
         return response;
     }
 

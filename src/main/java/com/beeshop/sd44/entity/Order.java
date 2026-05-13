@@ -36,6 +36,11 @@ public class Order {
     private Integer paymentStatus;
     @Column(name = "phan_loai")
     private Integer type;
+    @Column(name = "gia_tri_giam")
+    private Double discount;
+    private Double subtotal;
+    @Column(name = "ly do huy don")
+    private String cancelReason;
     @ManyToOne
     @JoinColumn(name = "nguoi_dung_id")
     private User user;
@@ -52,6 +57,30 @@ public class Order {
 
     public String getAddress() {
         return address;
+    }
+
+    public String getCancelReason() {
+        return cancelReason;
+    }
+
+    public void setCancelReason(String cancelReason) {
+        this.cancelReason = cancelReason;
+    }
+
+    public Double getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(Double discount) {
+        this.discount = discount;
+    }
+
+    public Double getSubtotal() {
+        return subtotal;
+    }
+
+    public void setSubtotal(Double subtotal) {
+        this.subtotal = subtotal;
     }
 
     public void setAddress(String address) {

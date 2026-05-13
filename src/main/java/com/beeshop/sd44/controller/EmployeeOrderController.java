@@ -99,6 +99,7 @@ public class EmployeeOrderController {
     @PutMapping("{id}/status")
     public ResponseEntity<ApiResponse<OrderResponse>> updateStatus(@PathVariable("id") UUID id,
                                                                    @RequestParam("status") Integer status,
+                                                                   @RequestParam(value = "reason", required = false) String reason,
                                                                    Authentication authentication) {
         if (status == null) {
             return ResponseEntity.badRequest().body(new ApiResponse<>("thieu trang thai", null));
@@ -108,7 +109,7 @@ public class EmployeeOrderController {
             return ResponseEntity.status(404).body(new ApiResponse<>("khong tim thay", null));
         }
         UUID operatorId = UUID.fromString(authentication.getName());
-        orderService.updateOrderStatus(id, status, operatorId);
+        orderService.updateOrderStatus(id, status, operatorId, reason);
         return ResponseEntity.ok(new ApiResponse<>("cap nhat thanh cong", orderService.getOrderResponseById(id)));
     }
 }
