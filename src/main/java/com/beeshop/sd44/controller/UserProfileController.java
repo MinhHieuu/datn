@@ -86,8 +86,8 @@ public class UserProfileController {
     }
 
     @PostMapping("orders/cancel/{id}")
-    public void cancelOrderByUser(@PathVariable("id") String id) {
+    public void cancelOrderByUser(@PathVariable("id") String id, @RequestParam("reason") String reason) {
         UUID orderId = UUID.fromString(id);
-        orderService.updateOrderStatus(orderId, 3);
+        orderService.updateOrderStatus(orderId, 3, null, reason);
     }
 }

@@ -108,7 +108,7 @@ public class OrderService {
         order.setSubtotal(subTotal);
         order.setVoucher(voucher);
         order.setDiscount(discount);
-        order.setCode("HD" + String.format("%03d", orderRepo.count()));
+        order.setCode("HD" + String.format("%03d", orderRepo.count() + 1));
 
         if ("COD".equals(orderRequest.getPaymentMethod())) {
             order.setPaymentStatus(0); // chưa thanh toán
@@ -465,7 +465,7 @@ public class OrderService {
 //                handleQuantity(saved);
 //            }
         }
-        if(status == 5) {
+        if(status == 5 || status == 6) {
             saved.setPaymentStatus(1);
         }
         return saved;
