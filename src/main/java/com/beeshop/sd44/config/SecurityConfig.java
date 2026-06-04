@@ -86,7 +86,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://dakfj-nylg.vercel.app"));// tên
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "https://dakfj-nylg.vercel.app", "https://dakfj-amber.vercel.app"));// tên
                                                                                                                  // miền
                                                                                                                  // được
                                                                                                                  // truy
