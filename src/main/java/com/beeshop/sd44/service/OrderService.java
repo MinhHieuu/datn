@@ -79,6 +79,7 @@ public class OrderService {
         if (orderRequest.getVoucherCode() != null && !orderRequest.getVoucherCode().isBlank()) {
             voucher = voucherService.validateAndGet(orderRequest.getVoucherCode(), subTotal);
             discount = voucherService.calculateDiscount(voucher, subTotal);
+
         }
 
         // 3. Phí ship (online luôn có phí ship)
@@ -100,18 +101,21 @@ public class OrderService {
         order.setType(1); // 1 = online
         order.setPaymentDate(new Date());
         order.setPaymentMethod(orderRequest.getPaymentMethod());
+        order.setAddress(orderRequest.getAddress());
         order.setNote(orderRequest.getNote());
         order.setShippingFee(shippingFee);
         order.setTotal(total);
+        order.setSubtotal(subTotal);
         order.setVoucher(voucher);
-        order.setCode("HD" + String.format("%03d", orderRepo.count()));
+        order.setDiscount(discount);
+        order.setCode("HD" + String.format("%03d", orderRepo.count() + 1));
 
         if ("COD".equals(orderRequest.getPaymentMethod())) {
             order.setPaymentStatus(0); // chưa thanh toán
             order.setStatus(0); // chờ xác nhận
         } else if ("VNPAY".equals(orderRequest.getPaymentMethod())) {
             order.setPaymentStatus(0); // đang thanh toán
-            order.setStatus(1); // đã xác nhận
+            order.setStatus(0); // chờ xác nhận
         }
 
         order = this.orderRepo.save(order);
@@ -127,7 +131,8 @@ public class OrderService {
             orderDetail.setPrice(productDetail.getSalePrice());
             orderDetailRepo.save(orderDetail);
             // Trừ tồn kho
-//            productDetail.setQuantity(productDetail.getQuantity() - pdRequest.getQuantity());
+            if(order.getStatus() == 1)
+        productDetail.setQuantity(productDetail.getQuantity() - pdRequest.getQuantity());
             cartIdsToDelete.add(productDetail.getId());
         }
 
@@ -141,8 +146,8 @@ public class OrderService {
                 "Khách hàng vừa đặt đơn hàng online trị giá " + savedOrder.getTotal().longValue() + " đ",
                 savedOrder.getId(),
                 "NEW_ORDER");
-
-        return buildOrderResponse(order, subTotal, discount);
+        System.out.println("subTotal: " + subTotal + "total: " + total);
+        return buildOrderResponse(order);
     }
 
     void minusOrder(Order order){
@@ -167,6 +172,7 @@ public class OrderService {
         if (orderRequest.getVoucherCode() != null && !orderRequest.getVoucherCode().isBlank()) {
             voucher = voucherService.validateAndGet(orderRequest.getVoucherCode(), subTotal);
             discount = voucherService.calculateDiscount(voucher, subTotal);
+
         }
 
         // 3. Tính toán tổng tiền (có tính phí ship nếu là đơn giao hàng)
@@ -178,7 +184,7 @@ public class OrderService {
         orderRequest.setTotal(total);
 
         // 4. Tạo Order
-        Order order = createCounterOrder(orderRequest, employeeId);
+        Order order = createCounterOrder(orderRequest, employeeId, subTotal, discount);
         if (voucher != null) {
             order.setVoucher(voucher);
             order = orderRepo.save(order);
@@ -197,15 +203,15 @@ public class OrderService {
 //                throw new RuntimeException("So luong san pham trong kho da het");
 //            }
 //// tru so luong di
-//            productDetail.setQuantity(productDetail.getQuantity() - pdRequest.getQuantity());
-
+//            if(order.getStatus() == 1)
+//        productDetail.setQuantity(productDetail.getQuantity() - pdRequest.getQuantity());
 
             orderDetailRepo.save(orderDetail);
         }
-        return buildOrderResponse(order, subTotal, discount);
+        return buildOrderResponse(order);
     }
 
-    public Order createCounterOrder(EmployeeOrderRequest orderRequest, UUID employeeId) {
+    public Order createCounterOrder(EmployeeOrderRequest orderRequest, UUID employeeId, Double subTotal, Double discount) {
         Order order = new Order();
         // Đơn tại quầy: nguoi_dung_id = employee/admin tạo đơn
         order.setUser(userService.getUserById(employeeId));
@@ -227,6 +233,8 @@ public class OrderService {
         order.setPaymentMethod(orderRequest.getPaymentMethod());
         order.setNote(orderRequest.getNote());
         order.setTotal(orderRequest.getTotal());
+        order.setSubtotal(subTotal);
+        order.setDiscount(discount);
         // order.setCode("HD" + order.getSum());
         if (type == 1) { // 1 = online
             order.setShippingFee(SHIPPING_FEE_DELIVERY);
@@ -236,11 +244,12 @@ public class OrderService {
         }
         if ("CASH".equals(orderRequest.getPaymentMethod())) {
             order.setPaymentStatus(1); // đã thanh toán
-            order.setStatus(1);
+            order.setStatus(5);
         } else if ("VNPAY".equals(orderRequest.getPaymentMethod())) {
             order.setPaymentStatus(0); // đang thanh toán
-            order.setStatus(1);
+            order.setStatus(0);
         }
+
         return this.orderRepo.save(order);
     }
 
@@ -272,7 +281,7 @@ public class OrderService {
 
     }
 
-    private OrderResponse buildOrderResponse(Order order, double subTotal, double discount) {
+    private OrderResponse buildOrderResponse(Order order) {
         OrderResponse response = new OrderResponse();
         response.setId(order.getId().toString());
         response.setCode(order.getCode());
@@ -280,12 +289,13 @@ public class OrderService {
         response.setPaymentDate(order.getPaymentDate());
         response.setCreatedAt(order.getCreatedAt());
         response.setShippingFee(order.getShippingFee());
-        response.setSubTotal(subTotal);
-        response.setDiscount(discount);
+        response.setSubTotal(order.getSubtotal());
+        response.setDiscount(order.getDiscount());
         response.setTotal(order.getTotal());
         response.setType(order.getType());
+        response.setReason(order.getCancelReason());
         response.setStatus(order.getStatus());
-
+        response.setAddress(order.getAddress());
         response.setPaymentStatus(order.getPaymentStatus());
         response.setPaymentMethod(order.getPaymentMethod());
         if (order.getVoucher() != null) {
@@ -322,7 +332,7 @@ public class OrderService {
         return response;
     }
 
-    private OrderResponse buildOrderResponseWithoutDetail(Order order, double subTotal, double discount) {
+    private OrderResponse buildOrderResponseWithoutDetail(Order order) {
         OrderResponse response = new OrderResponse();
         response.setId(order.getId().toString());
         response.setCode(order.getCode());
@@ -330,10 +340,11 @@ public class OrderService {
         response.setPaymentDate(order.getPaymentDate());
         response.setCreatedAt(order.getCreatedAt());
         response.setShippingFee(order.getShippingFee());
-        response.setSubTotal(subTotal);
-        response.setDiscount(discount);
+        response.setSubTotal(order.getSubtotal());
+        response.setDiscount(order.getDiscount());
         response.setTotal(order.getTotal());
         response.setType(order.getType());
+        response.setReason(order.getCancelReason());
         response.setStatus(order.getStatus());
         response.setPaymentStatus(order.getPaymentStatus());
         response.setPaymentMethod(order.getPaymentMethod());
@@ -345,11 +356,11 @@ public class OrderService {
 
     // Backward compatible
     private OrderResponse builresponse(Order order) {
-        return buildOrderResponse(order, order.getTotal() != null ? order.getTotal() : 0, 0);
+        return buildOrderResponse(order);
     }
 
     private OrderResponse builresponseWithoutDetail(Order order) {
-        return buildOrderResponseWithoutDetail(order, order.getTotal() != null ? order.getTotal() : 0, 0);
+        return buildOrderResponseWithoutDetail(order);
     }
 
     public List<OrderResponse> getOrdersByUserId(UUID userId) {
@@ -384,6 +395,7 @@ public class OrderService {
 
     public List<OrderResponse> getOrdersByFilter(OrderFilterRequest filter) {
         List<Order> orders = orderRepo.findOrdersByFilter(
+                filter.getName(),
                 filter.getStatus(),
                 filter.getPaymentStatus(),
                 filter.getType(),
@@ -411,11 +423,12 @@ public class OrderService {
      * người xác nhận.
      */
     @Transactional
-    public Order updateOrderStatus(UUID orderId, Integer status, UUID operatorId) {
+    public Order updateOrderStatus(UUID orderId, Integer status, UUID operatorId, String reason) {
         Order order = getOrderById(orderId);
         if (order == null) {
             return null;
         }
+        int stt = order.getStatus();
         order.setStatus(status);
         // Khi xác nhận đơn (status = 1), ghi lại người xác nhận vào nguoi_dung_id
         if (status == 1 && operatorId != null) {
@@ -430,16 +443,31 @@ public class OrderService {
         Order saved = orderRepo.save(order);
 
         // neu thanh toan tai quay vnpay da tru roi nen k tru nua
-        if(status == 1 && order.getType() == 1){
-            handleQuantity(saved);
+//        if(status == 1 && order.getType() == 1){
+////            handleQuantity(saved);
+//            return saved;
+//        }
+        if(status == 1 && order.getType() == 0){
+//            handleQuantity(saved);
             return saved;
         }
-
         // Nếu đơn bị hủy (status = 3) -> hoàn trả lại tồn kho cho các product detail
-        if (status == 3 || status == 1) {
+        if (status == 1) {
             handleQuantity(saved);
         }
 
+        if(status == 3|| status == 7) {
+        order.setCancelReason(reason);
+            if(stt == 1) {
+                handleQuantity(saved);
+            }
+//            if(order.getType() == 0) {
+//                handleQuantity(saved);
+//            }
+        }
+        if(status == 5 || status == 6) {
+            saved.setPaymentStatus(1);
+        }
         return saved;
     }
 
@@ -448,7 +476,7 @@ public class OrderService {
      * operatorId
      */
     public Order updateOrderStatus(UUID orderId, Integer status) {
-        return updateOrderStatus(orderId, status, null);
+        return updateOrderStatus(orderId, status, null, null);
     }
 
     public void handleQuantity(Order order) {

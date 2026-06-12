@@ -122,16 +122,16 @@ public class InvoicePdfService {
         String customerName = "--";
         String customerPhone = "--";
         String customerAddress = "--";
-        if (order.getUser() != null) {
-            customerName = safeStr(order.getUser().getName());
-            customerPhone = safeStr(order.getUser().getPhone());
-            customerAddress = safeStr(order.getUser().getAddress());
-        }
+//        if (order.getUser() != null) {
+//            customerName = safeStr(order.getUser().getName());
+//            customerPhone = safeStr(order.getUser().getPhone());
+//            customerAddress = safeStr(order.getUser().getAddress());
+//        }
         if (order.getCustomer() != null) {
             if (order.getCustomer().getTen() != null) customerName = order.getCustomer().getTen();
             if (order.getCustomer().getSdt() != null) customerPhone = order.getCustomer().getSdt();
             if (order.getCustomer().getDiaChi() != null) customerAddress = order.getCustomer().getDiaChi();
-        }
+        }else customerName = "khách lẻ";
 
         infoTable.addCell(noBorderCell("Khách hàng: " + customerName, font, 10));
         infoTable.addCell(noBorderCell("Phương thức TT: " + formatPaymentMethod(order.getPaymentMethod()), font, 10));
@@ -148,11 +148,11 @@ public class InvoicePdfService {
                 .setFont(fontBold).setFontSize(11).setFontColor(PRIMARY_COLOR)
                 .setMarginBottom(4));
 
-        Table productTable = new Table(UnitValue.createPercentArray(new float[]{5, 35, 15, 15, 15, 15}))
+        Table productTable = new Table(UnitValue.createPercentArray(new float[]{5, 30, 15, 10, 10, 15, 15}))
                 .setWidth(UnitValue.createPercentValue(100));
 
         // Header bảng
-        String[] headers = {"STT", "Sản phẩm", "Size", "Màu sắc", "Đơn giá", "Thành tiền"};
+        String[] headers = {"STT", "Sản phẩm", "Mã sản phẩm", "Size", "Màu sắc", "Đơn giá", "Thành tiền"};
         for (String h : headers) {
             productTable.addHeaderCell(new Cell()
                     .setBackgroundColor(HEADER_BG)
@@ -168,7 +168,7 @@ public class InvoicePdfService {
             OrderDetail od = details.get(i);
             boolean isAlt = (i % 2 == 1);
             DeviceRgb rowBg = isAlt ? ROW_ALT_BG : new DeviceRgb(255, 255, 255);
-
+            String productCode = "__";
             String productName = "--";
             String sizeName = "--";
             String colorName = "--";
@@ -176,11 +176,12 @@ public class InvoicePdfService {
             double price = od.getPrice() != null ? od.getPrice() : 0;
 
             if (od.getProductDetail() != null) {
-//                productName = safeStr(od.getProductDetail().getName());
+                productName = safeStr(od.getProductDetail().getProduct().getName());
                 if (od.getProductDetail().getSize() != null)
                     sizeName = safeStr(od.getProductDetail().getSize().getName());
                 if (od.getProductDetail().getColor() != null)
                     colorName = safeStr(od.getProductDetail().getColor().getName());
+                if(od.getProductDetail().getProduct() != null) productCode = safeStr(od.getProductDetail().getCode());
             }
 
             double lineTotal = price * qty;
@@ -188,6 +189,7 @@ public class InvoicePdfService {
 
             productTable.addCell(tableCell(String.valueOf(i + 1), font, 9, rowBg, TextAlignment.CENTER));
             productTable.addCell(tableCell(productName, font, 9, rowBg, TextAlignment.LEFT));
+            productTable.addCell(tableCell(productCode, font, 9, rowBg, TextAlignment.LEFT));
             productTable.addCell(tableCell(sizeName, font, 9, rowBg, TextAlignment.CENTER));
             productTable.addCell(tableCell(colorName, font, 9, rowBg, TextAlignment.CENTER));
             productTable.addCell(tableCell(df.format(price) + " đ", font, 9, rowBg, TextAlignment.RIGHT));

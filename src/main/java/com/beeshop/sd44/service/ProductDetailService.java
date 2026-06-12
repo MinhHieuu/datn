@@ -61,6 +61,7 @@ public class ProductDetailService {
         ProductDetailResponse response = new ProductDetailResponse();
         response.setId(detail.getId());
 //        response.setName(detail.getName());
+        response.setCode(detail.getCode());
         response.setDescription(detail.getDescription());
         response.setQuantity(detail.getQuantity());
         response.setCostPrice(detail.getCostPrice());
@@ -72,6 +73,7 @@ public class ProductDetailService {
         response.setColorId(detail.getColor().getId());
         response.setColorName(detail.getColor().getName());
         response.setImages(this.getImages(detail));
+        response.setPrice(detail.getSalePrice());
         return response;
     }
 
@@ -82,6 +84,8 @@ public class ProductDetailService {
 
     public ProductDetail buildProductDetail(ProductDetail detail, ProductDetailRequest request) {
 //        detail.setName(request.getName());
+//        detail.setCode(this.productService.getById(request.getProductId()).getCode() + '-'
+//                + getFirst6Chars(request.getSizeId()) + '-' + getFirst6Chars(request.getColorId()));
         detail.setDescription(request.getDescription());
         detail.setCostPrice(request.getCostPrice());
         detail.setSalePrice(request.getSalePrice());
@@ -90,7 +94,7 @@ public class ProductDetailService {
         detail.setColor((this.colorService.getById(request.getColorId())));
         detail.setSize(this.sizeService.getById(request.getSizeId()));
         detail.setDeleteFlag(request.isDeleteFlag());
-
+        this.productDetailRepo.save(detail);
         // xu ly luu anh
         if (!CollectionUtils.isEmpty(request.getImagesDelete())) {
             List<Image> images = this.imageRepo.findByUrlIn(request.getImagesDelete());
@@ -106,7 +110,7 @@ public class ProductDetailService {
         }
         this.imageRepo.saveAll(images);
 
-        return this.productDetailRepo.save(detail);
+        return detail;
     }
 
     @Transactional
@@ -219,4 +223,6 @@ public class ProductDetailService {
         }
         return res;
     }
+
+
 }

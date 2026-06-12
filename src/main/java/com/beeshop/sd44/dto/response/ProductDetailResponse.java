@@ -5,6 +5,16 @@ import java.util.UUID;
 
 public class ProductDetailResponse {
     private UUID id;
+    private String code;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
     private String description;
     private Integer quantity;
     private Double costPrice;
@@ -18,6 +28,15 @@ public class ProductDetailResponse {
     private String colorName;
     private List<String> images;
     private Integer quantityInOrder;
+    private Double price;
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
+    }
 
     public Integer getQuantityInOrder() {
         return quantityInOrder;

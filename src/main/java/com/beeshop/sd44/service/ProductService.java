@@ -40,6 +40,15 @@ public class ProductService {
        return listResponse;
     }
 
+    public List<ProductResponse> getByStatus() {
+        List<Product> list = this.repo.findByStatus(1);
+        List<ProductResponse> listResponse = new ArrayList<>();
+        for(Product product : list) {
+            listResponse.add(hanldeResponse(product));
+        }
+        return listResponse;
+    }
+
     public boolean isNameExit(String name) {
         return this.repo.existsByName(name);
     }
@@ -49,8 +58,9 @@ public class ProductService {
         Product product = new Product();
         product.setCreatedAt(new Date());
         product = buildProduct(product, request);
-        List<Image> images = saveDetail(product, request.getProductDetails(), null);
         this.repo.save(product);
+        List<Image> images = saveDetail(product, request.getProductDetails(), null);
+
         this.imageRepo.saveAll(images);
     }
 
@@ -58,6 +68,7 @@ public class ProductService {
         ProductResponse response = new ProductResponse();
         response.setId(product.getId());
         response.setName(product.getName());
+        response.setCode(product.getCode());
         response.setBrandId(product.getBrand().getId());
         response.setBrand(product.getBrand().getName());
         response.setMarterialId(product.getMarterial().getId());
@@ -83,8 +94,8 @@ public class ProductService {
         product.setUpdatedAt(new Date());
         product = buildProduct(product, request);
 
-        List<Image> images = saveDetail(product, request.getProductDetails(), request.getProductDetailsUpdate());
         this.repo.save(product);
+        List<Image> images = saveDetail(product, request.getProductDetails(), request.getProductDetailsUpdate());
         this.imageRepo.saveAll(images);
     }
 
@@ -92,6 +103,7 @@ public class ProductService {
         Brand brand = brandService.getById(requestBase.getBrandId());
         Marterial marterial = marterialService.getById(requestBase.getMarterialId());
         product.setName(requestBase.getName());
+        product.setCode(requestBase.getCode());
         product.setBrand(brand);
         product.setMarterial(marterial);
         product.setImage(requestBase.getImage());
@@ -128,14 +140,14 @@ public class ProductService {
         // them moi
         if(details != null && !details.isEmpty()){
             for(ProductDetailRequest request: details){
-                UUID id = request.getId();
                 ProductDetail detail = new ProductDetail();
                 detail.setDescription(request.getDescription());
                 detail.setCostPrice(request.getCostPrice());
                 detail.setSalePrice(request.getSalePrice());
                 detail.setQuantity(request.getQuantity());
                 detail.setProduct(product);
-
+                detail.setCode( getFirst6Chars(product.getId())+ '-'
+                        + getFirst6Chars(request.getSizeId()) + '-' + getFirst6Chars(request.getColorId()));
 
                 Color color = new Color();
                 color.setId(request.getColorId());
@@ -144,6 +156,7 @@ public class ProductService {
                 detail.setColor(color);
                 detail.setSize(size);
                 detail.setDeleteFlag(request.isDeleteFlag());
+                productDetailRepo.save(detail);
                 list.add(detail);
                 imagesAfterProductSaved.addAll(this.saveImage(request.getImages(), request.getImagesDelete(), detail));
             }
@@ -152,7 +165,9 @@ public class ProductService {
         product.setList(list);
         return imagesAfterProductSaved;
     }
-
+    private String getFirst6Chars(UUID id) {
+        return id.toString().substring(0, 6);
+    }
     List<Image> saveImage(List<String> imagesUrl, List<String> imagesDelete, ProductDetail detail){
         // xu ly luu anh
         if (!CollectionUtils.isEmpty(imagesDelete)) {

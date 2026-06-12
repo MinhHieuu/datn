@@ -113,6 +113,11 @@ public class OrderController {
 
             // Bắn thông báo VNPAY thanh toán thành công
             Order paidOrder = orderService.getOrderById(UUID.fromString(orderId));
+            if(paidOrder.getType() == 1) {
+                orderService.updateOrderStatus(UUID.fromString(orderId), 1);
+            }else {
+                orderService.updateOrderStatus(UUID.fromString(orderId), 5);
+            }
             if (paidOrder != null) {
                 notificationService.createAndBroadcast(
                         "Thanh toán VNPAY thành công",
@@ -129,7 +134,8 @@ public class OrderController {
             response.sendRedirect("http://localhost:3000/order/confirm");
         } else {
             // Thanh toán thất bại
-            orderService.updatePaymentStatus(UUID.fromString(orderId), 3);
+            orderService.updatePaymentStatus(UUID.fromString(orderId), 2);
+            orderService.updateOrderStatus(UUID.fromString(orderId), 3);
             response.sendRedirect("http://localhost:3000/order/error");
         }
     }
@@ -167,5 +173,6 @@ public class OrderController {
         List<OrderResponse> orders = orderService.getOrdersByCustomerId(customer.getId());
         return ResponseEntity.ok(new ApiResponse<>("lay thanh cong", orders));
     }
+
 
 }
