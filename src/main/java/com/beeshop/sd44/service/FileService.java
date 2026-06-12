@@ -47,6 +47,7 @@ public class FileService {
         Path path = Paths.get(uri);
         try {
             InputStream inputStream = file.getInputStream();
+            Files.createDirectories(path.getParent());
             Files.copy(inputStream, path, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             e.printStackTrace();

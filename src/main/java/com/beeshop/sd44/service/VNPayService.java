@@ -3,15 +3,15 @@ package com.beeshop.sd44.service;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -41,7 +41,12 @@ public class VNPayService {
     private String vnp_command;
     @Value("${vnpay.locale}")
     private String vnpay_locale;
+    @Value("${vnpay.time-zone:Asia/Ho_Chi_Minh}")
+    private String vnpayTimeZone;
+    @Value("${vnpay.expire-minutes:30}")
+    private long vnpayExpireMinutes;
     private String vnp_BankCode = "";
+    private static final DateTimeFormatter VNPAY_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     public VNPayResponse createPaymentLink(String orderId, Long amount, String orderInfo, HttpServletRequest request)
             throws ServletException, IOException {
@@ -63,13 +68,11 @@ public class VNPayService {
         vnp_Params.put("vnp_ReturnUrl", vnp_returnUrl);
         vnp_Params.put("vnp_IpAddr", getIpAddress(request));
 
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(cld.getTime());
+        ZonedDateTime createTime = ZonedDateTime.now(ZoneId.of(vnpayTimeZone));
+        String vnp_CreateDate = createTime.format(VNPAY_DATE_FORMATTER);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
-        String vnp_ExpireDate = formatter.format(cld.getTime());
+        String vnp_ExpireDate = createTime.plusMinutes(vnpayExpireMinutes).format(VNPAY_DATE_FORMATTER);
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
         List fieldNames = new ArrayList(vnp_Params.keySet());

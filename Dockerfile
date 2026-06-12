@@ -18,8 +18,11 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
+RUN mkdir -p /app/uploads && chown -R 10001:10001 /app/uploads
 
 ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75"
+ENV BEESHOP_UPLOAD_FILE_BASE_URI="file:/app/uploads/"
+ENV VNPAY_TIME_ZONE="Asia/Ho_Chi_Minh"
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
